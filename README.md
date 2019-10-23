@@ -1,10 +1,10 @@
 # canok_rtsp_client
-rtsp client for learning rtsp, can get video stream of h264 loaded on  rtp-over-udp
-
-
-介绍：学习rtsp协议。 目前在ubuntu 上使用。 从零编写，代码结构清晰，注释详细。
-      当前支持 rtsp-rtp_over_udp, 拉取h264视频流，可以获取到h264裸流文件。
-   详细实现 rtsp tcp socket连接的建立，读写交互， RTSP 协议的解析。 RTP -udp socket的建立，rtp负载h264的解析，预留接口可以扩展支持其他流的解析。
+rtsp client for learning rtsp, can get video stream of h264 loaded on  rtp-over-udp  
+  
+  
+介绍：学习rtsp协议。 目前在ubuntu 上使用。 从零编写，代码结构清晰，注释详细。  
+      当前支持 rtsp-rtp_over_udp, 拉取h264视频流，可以获取到h264裸流文件。  
+   详细实现 rtsp tcp socket连接的建立，读写交互， RTSP 协议的解析。 RTP -udp socket的建立，rtp负载h264的解析，预留接口可以扩展支持其他流的解析。  
 
 
 主要文件：  
