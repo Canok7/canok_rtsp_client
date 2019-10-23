@@ -27,3 +27,6 @@ cRTPClient.cpp  rtp 会话
 
 cRTPParse.cpp  解析rtp负载  
 cH264RTP.cpp    
+
+运行test_main.cpp ,正常情况下可以在当前目录得到 live_out 输出文件，即h264裸流文件。  
+rtsp_log 文件，记录有rtsp客户端发送的rtsp信息和收到的回应信息  
