@@ -22,7 +22,8 @@ serIp(NULL),
 m_socket(-1),
 m_port(0),
 pQueNet(NULL),
-pQueH264(NULL)
+pQueH264(NULL),
+pRTPParse(NULL)
 {
 	memset(&mlastRtpInfo,0,sizeof(mlastRtpInfo));
 }
@@ -103,7 +104,8 @@ int cRTPClient::rtp_stop()
 	pthread_join(mpth_read,NULL);
 	pthread_join(mpth_parse,NULL);
 }
-int cRTPClient::rtp_getUDPPort()
+int cRTPClient::rtp_getUDPPort()
+
 {
 	return m_port;
 }
