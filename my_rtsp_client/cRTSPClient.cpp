@@ -33,7 +33,8 @@ int cRTSPClient::api_init(const char*url)
 		fp_prot_log = fopen("rtsp_log","w+");
 		if(fp_prot_log == NULL)
 		{
-			DEBUG_WARN("rtsp_log open failed!");
+			DEBUG_ERR("rtsp_log open failed!");
+			return RET_ERR;
 		}
 		setbuf(fp_prot_log,NULL);
 	}
@@ -58,14 +59,15 @@ int cRTSPClient::api_init(const char*url)
 					{
 						if(request_play() == RET_SUCESS)
 						{
-						
+							return RET_SUCESS;
 						}
 					}
 				}
 			}
 		}
 	}
-	
+
+	return RET_ERR;
 }
 int cRTSPClient::api_deinit()
 {
@@ -83,6 +85,7 @@ int cRTSPClient::api_deinit()
 		pRTP = NULL;
 	}
 
+	return RET_SUCESS;
 }
 int cRTSPClient::api_requestFrameBuffer(unsigned char **pdata,int *plen)
 {
@@ -179,7 +182,7 @@ int cRTSPClient::request_options()
 	//这里 sizeof(buf)-1, 字符串最后有一个 “\0” ，剔除
 	rtsp_request(buf,sizeof(buf)-1,REQUEST_OPTION); 
 #else
-	char buf[256];
+	char buf[256]={0};
 	pr.begain_cmd();do{
 		snprintf(buf,sizeof(buf),"OPTIONS %s %s",mUrl,"RTSP/1.0");
 		pr.add_line_cmd(buf, strlen(buf));
@@ -358,13 +361,14 @@ int cRTSPClient::parse_rtsp_url(const char* url,char*ip,unsigned *port )
 		DEBUG_ERR("URL format err\n");
 		return RET_ERR;
 	}
-	char other[100];
+	char other[100]={0};
 	if(sscanf(url+7,"%[^:]%*c%u%s",ip,port,other) != 3)
 	{
 		DEBUG_ERR("URL parse erro url:%s\n",url);
 		return RET_ERR;
 	}
 
+	serverIp[sizeof(serverIp)-1]='\0';
 	DEBUG_INFO3("URL PARSE ok:[%s] [%s %u] [other:%s]\n",mUrl,serverIp,serverPort,other);
 	return RET_SUCESS;
 }
