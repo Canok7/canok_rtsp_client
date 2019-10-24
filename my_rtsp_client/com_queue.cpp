@@ -52,7 +52,7 @@ mEffectives(0)
 CQueue::~CQueue()
 {
 	int i =0;
-	for(i=0;i++;i<maxFrames)
+	for(i=0;i<maxFrames;i++)
 	{
 		pthread_mutex_destroy(&que[i].mlock);
 	}
