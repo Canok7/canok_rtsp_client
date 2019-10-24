@@ -31,6 +31,7 @@ int cRTSPprotocol::begain_cmd()
 {
 	memset(mSendbuf,0,mSendLen);
 	mSendOffset =0;
+	return RET_SUCESS;
 }
 
 int cRTSPprotocol::add_line_cmd(const       char*buf, int buflen)
@@ -44,6 +45,7 @@ int cRTSPprotocol::add_line_cmd(const       char*buf, int buflen)
 	mSendbuf[mSendOffset+buflen] = '\r';
 	mSendbuf[mSendOffset+buflen+1] = '\n';
 	mSendOffset += buflen+2;
+	return RET_SUCESS;
 }
 
 int cRTSPprotocol::end_cmd()
@@ -51,6 +53,7 @@ int cRTSPprotocol::end_cmd()
 	mSendbuf[mSendOffset] = '\r';
 	mSendbuf[mSendOffset+1] = '\n';
 	mSendOffset += 2;
+	return RET_SUCESS;
 }
 
 static char* getLine(char* startOfLine)
@@ -163,6 +166,8 @@ bool cRTSPprotocol::catchVideoMedinSession(char const*sdpMLine)
 				return false;
 			}
 	}
+
+	return RET_SUCESS;
 }
 
 //获取一行
@@ -288,7 +293,8 @@ int cRTSPprotocol::parseSDP(char const* sdpDescription)
 	   sdpLine = nextSDPLine;
   	  if (sdpLine == NULL) break; // there are no m= lines at all
     }
-  
+
+    return RET_SUCESS;
 }
 
 

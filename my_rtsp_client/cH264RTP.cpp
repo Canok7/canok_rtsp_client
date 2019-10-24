@@ -4,12 +4,17 @@
 
 #include"memwatch.h"
 
-cH264RTP::cH264RTP(CQueue *QueNet,CQueue *QueH264):
+cH264RTP::cH264RTP(CQueue *QueNet,CQueue *QueH264,int bufferLen):
 cRTPParse(QueNet,QueH264),
 mFUBufferOffset(0),
-mFUBuffer(NULL)
+mFUBuffer(NULL),
+mFUBufferLen(bufferLen)
 {
-	mFUBuffer = (u_int8_t *)malloc(512*1024);
+	if(mFUBufferLen < 128*1024)
+	{
+		DEBUG_ERR("too short FUBufferlen\n");
+	}
+	mFUBuffer = (u_int8_t *)malloc(mFUBufferLen);
 }
 
 cH264RTP::~cH264RTP()
@@ -84,9 +89,24 @@ int cH264RTP::parse_FU_A(u_int8_t *load_data, int dataLen)
 	else 
 	{
 		DEBUG_INFO2("-- FU_A ------------\n");
-		memcpy(mFUBuffer+mFUBufferOffset,pH264Data,h264Datalen);
-		mFUBufferOffset += h264Datalen;
+
+		if(mFUBufferOffset+ h264Datalen > mFUBufferLen)
+		{
+			DEBUG_ERR("too short mFUBufferLen !!! some data must be droped \n");
+			int  copylen = mFUBufferLen -mFUBufferOffset;
+			memcpy(mFUBuffer+mFUBufferOffset,pH264Data,copylen);
+			mFUBufferOffset += copylen;
+
+			pQueH264->push(mFUBuffer, mFUBufferOffset);
+			mFUBufferOffset =0;
+		}
+		else
+		{
+			memcpy(mFUBuffer+mFUBufferOffset,pH264Data,h264Datalen);
+			mFUBufferOffset += h264Datalen;
+		}
 	}
+	return RET_SUCESS;
 }
 
 int cH264RTP::parse_payload(uint8_t *pData, int dataLen)
@@ -105,5 +125,6 @@ int cH264RTP::parse_payload(uint8_t *pData, int dataLen)
 	{
 		DEBUG_ERR("not support for now type:%d\n",type);
 	}
+	return RET_SUCESS;
 }
 

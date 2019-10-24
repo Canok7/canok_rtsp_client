@@ -8,7 +8,7 @@ class cRTPParse
 {
 public:
 	cRTPParse(CQueue *QueNet,CQueue *QueH264);
-	~cRTPParse();
+	virtual ~cRTPParse();
 
 	virtual int parse_payload(uint8_t *pData,int dataLen)=0;
 

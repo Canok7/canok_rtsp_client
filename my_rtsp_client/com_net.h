@@ -33,4 +33,7 @@ bool makeSocketNonBlocking(int sock);
 
 bool makeSocketBlocking(int sock, unsigned writeTimeoutInMilliseconds);
 
+unsigned getReceiveBufferSize( int socket);
+
+unsigned increaseReceiveBufferTo(int socket, unsigned requestedSize);
 #endif

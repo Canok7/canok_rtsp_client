@@ -219,6 +219,39 @@ bool makeSocketBlocking(int sock, unsigned writeTimeoutInMilliseconds)
   return result;
 }
 
+unsigned getReceiveBufferSize( int socket)
+{
+	unsigned curSize;
+	socklen_t  sizeSize = sizeof(curSize);
+	if (getsockopt(socket, SOL_SOCKET, SO_RCVBUF,(char*)&curSize, &sizeSize) < 0)
+	{
+		DEBUG_ERR("get buffsize erro\n");
+		return 0;
+	}
+	return curSize;
+}
+
+
+unsigned increaseReceiveBufferTo(int socket, unsigned requestedSize)
+{
+	// First, get the current buffer size.  If it's already at least
+	// as big as what we're requesting, do nothing.
+	unsigned curSize = getReceiveBufferSize(socket);
+
+	// Next, try to increase the buffer to the requested size,
+	// or to some smaller size, if that's not possible:
+	while (requestedSize > curSize)
+	{
+		socklen_t sizeSize = sizeof(requestedSize);
+		if (setsockopt(socket, SOL_SOCKET, SO_RCVBUF,(char*)&requestedSize, sizeSize) >= 0)
+		{
+			// success
+			return requestedSize;
+		}
+		requestedSize = (requestedSize+curSize)/2;
+	}
+	return getReceiveBufferSize(socket);
+}
 
 
 

@@ -40,7 +40,9 @@ int cRTPClient::rtp_init(const char* serip)
 	
 
 	m_socket = udp_net_setup();
-	udp_get_port(m_socket, &m_port);
+    unsigned recvBUf = increaseReceiveBufferTo(m_socket,2000000);
+    DEBUG_INFO1("rtp_UDP_recv_buf %u \n",recvBUf);
+	return udp_get_port(m_socket, &m_port);
 
 	#if 0
 	pthread_t pth_read;
@@ -74,6 +76,7 @@ int cRTPClient::rtp_deinit()
 
 	delete pQueNet;
 	delete pQueH264;
+	return RET_SUCESS;
 }
 
 int cRTPClient::rtp_start()
@@ -103,6 +106,7 @@ int cRTPClient::rtp_stop()
 
 	pthread_join(mpth_read,NULL);
 	pthread_join(mpth_parse,NULL);
+	return RET_SUCESS;
 }
 int cRTPClient::rtp_getUDPPort()
 
@@ -147,7 +151,8 @@ int cRTPClient::set_header_info(uint8_t* pHeader,RTP_PACK_HEADER_INFO* pHeaderIn
 	pHeaderInfo->sequenceNumber = LITTLE_MAKE_UNINT16(pHeader+2);
 	pHeaderInfo->timeStamp = LITTLE_MAKE_UNINT32(pHeader+4);
 	pHeaderInfo->ssrc = LITTLE_MAKE_UNINT32(pHeader+8); 
-	DEBUG_INFO3("sequenceNumber %u timeStamp %u ssrc %u payloadType %d \n",pHeaderInfo->sequenceNumber,pHeaderInfo->timeStamp,pHeaderInfo->ssrc,pHeaderInfo->payloadType );
+	DEBUG_INFO1("sequenceNumber %u timeStamp %u ssrc %u payloadType %d \n",pHeaderInfo->sequenceNumber,pHeaderInfo->timeStamp,pHeaderInfo->ssrc,pHeaderInfo->payloadType );
+	return RET_SUCESS;
 }
 void cRTPClient::show_stream_info()
 {
@@ -163,8 +168,10 @@ bool cRTPClient::check_header(RTP_PACK_HEADER_INFO* pHeaderInfo)
 
 		if(pHeaderInfo->payloadType == 96 && pRTPParse == NULL)
 		{
+		    DEBUG_INFO3("carete h264rtpParser \n");
 			pRTPParse = new cH264RTP(pQueNet,pQueH264);
 		}
+		return true;
 	}
 	if(pHeaderInfo->ssrc == mlastRtpInfo.ssrc)
 	{
@@ -176,9 +183,12 @@ bool cRTPClient::check_header(RTP_PACK_HEADER_INFO* pHeaderInfo)
 			else
 			{
 				mlostCount += pHeaderInfo->sequenceNumber - 1 - mlastRtpInfo.sequenceNumber;
-				DEBUG_WARN("all: rtp frame had losted mlostCount %d ,expect:%d\n",mlostCount,pHeaderInfo->sequenceNumber-mfistSequenceNumber);
+				DEBUG_WARN("all: rtp frame had losted mlostCount %d ,expect:%d fistseq:%u curseq: %u lastseq: %u\n",mlostCount,pHeaderInfo->sequenceNumber-mfistSequenceNumber,mfistSequenceNumber,pHeaderInfo->sequenceNumber,mlastRtpInfo.sequenceNumber);
+			    if(pHeaderInfo->sequenceNumber < mlastRtpInfo.sequenceNumber)
+                {
+                    DEBUG_WARN("seq erro lastseq: %u curseq: %u \n",mlastRtpInfo.sequenceNumber,pHeaderInfo->sequenceNumber);
+                }
 			}
-
 			memcpy(&mlastRtpInfo, pHeaderInfo,sizeof(mlastRtpInfo));
 			return true;
 		}
@@ -206,7 +216,12 @@ int cRTPClient::parse()
 		set_header_info(pData,&rtpInfo);
 		if(check_header(&rtpInfo))
 		{
-			pRTPParse->parse_payload(pData+12, dataLen-12);
+		    if(pRTPParse)
+		    {
+                pRTPParse->parse_payload(pData + 12, dataLen - 12);
+            } else{
+		        DEBUG_INFO3("no parser\n");
+		    }
 		}
 		else
 		{
@@ -214,6 +229,8 @@ int cRTPClient::parse()
 		}
 		pQueNet->releasebuffer(index);
 	}
+
+	return RET_SUCESS;
 }
 void* cRTPClient::read_thread(void *pRtpclient)
 {
@@ -314,6 +331,7 @@ void* cRTPClient::read_thread(void *pRtpclient)
 		
 	#endif
 #endif
+		return NULL;
 }
 void* cRTPClient::parse_thread(void *pRtpclient)
 {
@@ -322,6 +340,7 @@ void* cRTPClient::parse_thread(void *pRtpclient)
 	{
 		pRtp->parse();
 	}
+	return NULL;
 }
 
 

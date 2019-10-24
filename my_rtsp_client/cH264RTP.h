@@ -14,7 +14,7 @@ enum NAL_TYPE{
 class cH264RTP  :public cRTPParse
 {
 public :
-	cH264RTP(CQueue *QueNet,CQueue *QueH264);
+	cH264RTP(CQueue *QueNet,CQueue *QueH264,int bufferLen=1024*512 );
 	~cH264RTP();
 
 	
@@ -26,5 +26,6 @@ private:
 private:
 	u_int8_t *mFUBuffer;
 	int mFUBufferOffset;
+	int mFUBufferLen;
 };
 #endif
