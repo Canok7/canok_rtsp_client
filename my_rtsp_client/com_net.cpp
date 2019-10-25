@@ -40,10 +40,10 @@ int udp_net_setup()
 	setsockopt(sockfd, SOL_SOCKET, MSG_NOSIGNAL, &data, sizeof (int));
 
 
-	//这里使用内核自己分配的端口
+	
 
 	cli_addr.sin_family = AF_INET;
-	#if 0
+	#if 1//这里使用内核自动分配的端口
 	cli_addr.sin_port   = 0;//!!!!!!!!!!!!
 	#else
 
@@ -85,9 +85,9 @@ int udp_connect(int sockfd,const char*host, int port)
 	}
 	return RET_SUCESS;
 }
-//
+//in net byte order
 int udp_get_port(int socket, int16_t *port)
-{
+{//参考live555 GroupsockHelper.cpp getSourcePort
 
   sockaddr_in test; 
   test.sin_port = 0;
@@ -99,7 +99,8 @@ int udp_get_port(int socket, int16_t *port)
   }
   
   DEBUG_INFO3("GETCLIENT_UDP_PORT test.sin_port %d \n",test.sin_port);
-  *port = ntohs(test.sin_port);
+  //*port = ntohs(test.sin_port);
+  *port = test.sin_port;
   DEBUG_INFO3("GETCLIENT_UDP_PORT *port %d \n",*port);
   return RET_SUCESS;
 }
